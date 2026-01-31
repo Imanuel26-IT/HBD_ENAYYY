@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Day 🎀</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@300;500;700&display=swap');
+
+        :root {
+            --primary-pink: #ff85a2;
+            --soft-pink: #ffe5ec;
+            --glass: rgba(255, 255, 255, 0.25);
+        }
+
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            background: linear-gradient(135deg, #fce4ec 0%, #ffd1dc 100%);
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- Latar Belakang Animasi --- */
+        .bg-blobs {
+            position: absolute; width: 100%; height: 100%; overflow: hidden; z-index: 1;
+        }
+        .blob {
+            position: absolute; background: white; border-radius: 50%;
+            filter: blur(40px); opacity: 0.4; animation: move 20s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(0, 0); }
+            to { transform: translate(100px, 100px); }
+        }
+
+        /* --- Music Visualizer --- */
+        .visualizer {
+            position: fixed; top: 20px; right: 20px; display: flex; gap: 3px; height: 20px; z-index: 100; opacity: 0; transition: 0.5s;
+        }
+        .bar { width: 3px; background: var(--primary-pink); animation: bounce 0.5s infinite alternate; }
+        @keyframes bounce { from { height: 5px; } to { height: 20px; } }
+
+        /* --- Kartu Utama (3D Tilt & Glass) --- */
+        .container {
+            position: relative; z-index: 10;
+            width: 90%; max-width: 400px;
+            padding: 40px; border-radius: 30px;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.1);
+            text-align: center;
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            transition: transform 0.3s ease;
+        }
+
+        /* Efek saat perayaan dimulai */
+        .container.celebrating {
+            animation: shake 0.5s infinite alternate;
+        }
+
+        @keyframes shake {
+            from { transform: scale(1.02) rotate(1deg); }
+            to { transform: scale(1.02) rotate(-1deg); }
+        }
+
+        .stage { display: none; }
+        .stage.active { display: block; animation: zoomIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.8) translateZ(0); }
+            to { opacity: 1; transform: scale(1) translateZ(50px); }
+        }
+
+        h1 { font-family: 'Dancing Script', cursive; font-size: 2.8rem; color: #d63384; margin-bottom: 10px; }
+        p { font-size: 1rem; color: #6d4c51; line-height: 1.6; min-height: 3em; }
+
+        /* --- Tombol --- */
+        .btn {
+            margin-top: 30px; padding: 15px 40px;
+            background: var(--primary-pink); color: white;
+            border: none; border-radius: 50px;
+            font-weight: 700; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(255, 133, 162, 0.3);
+            transition: 0.3s;
+        }
+        .btn:hover { background: #fb6f92; transform: translateY(-3px) scale(1.05); }
+
+        /* --- Animasi Ikon --- */
+        .floating-icon { font-size: 4rem; margin-bottom: 20px; display: inline-block; animation: float 3s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    </style>
+</head>
+<body>
+
+    <div class="bg-blobs" id="blobs"></div>
+
+    <div class="visualizer" id="viz">
+        <div class="bar" style="animation-delay: 0.1s"></div>
+        <div class="bar" style="animation-delay: 0.3s"></div>
+        <div class="bar" style="animation-delay: 0.2s"></div>
+        <div class="bar" style="animation-delay: 0.4s"></div>
+    </div>
+
+    <audio id="bgm" loop>
+        <source src="https://cdn.pixabay.com/audio/2022/11/22/audio_106677943f.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="container" id="mainCard" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.5">
+        
+        <div class="stage active" id="s1">
+            <span class="floating-icon">🎁</span>
+            <h1>Sesuatu Untukmu..</h1>
+            <p id="txt1">Tekan tombol di bawah untuk membuka kado kecil dariku...</p>
+            <button class="btn" onclick="startApp()">Buka Sekarang ✨</button>
+        </div>
+
+        <div class="stage" id="s2">
+            <span class="floating-icon">🌸</span>
+            <h1>Hi, Manis!</h1>
+            <p id="txt2"></p>
+            <button class="btn" onclick="goTo(3)">Lanjut 🎀</button>
+        </div>
+
+        <div class="stage" id="s3">
+            <span class="floating-icon">🎂</span>
+            <h1>Happy Birthday!</h1>
+            <p id="txt3"></p>
+            <button class="btn" onclick="goTo(4)">Satu Doa... 💖</button>
+        </div>
+
+        <div class="stage" id="s4">
+            <span class="floating-icon">✨</span>
+            <h1>Stay Amazing</h1>
+            <p id="txt4"></p>
+            <button class="btn" onclick="celebrate()">Rayakan! 🎉</button>
+        </div>
+    </div>
+
+    <script>
+        const bgm = document.getElementById('bgm');
+        const viz = document.getElementById('viz');
+        const mainCard = document.getElementById('mainCard');
+
+        // Setup Blobs Background
+        for(let i=0; i<5; i++){
+            const b = document.createElement('div');
+            b.className = 'blob';
+            b.style.width = Math.random()*300 + 200 + 'px';
+            b.style.height = b.style.width;
+            b.style.left = Math.random()*100 + '%';
+            b.style.top = Math.random()*100 + '%';
+            document.getElementById('blobs').appendChild(b);
+        }
+
+        // Typewriter Effect Function
+        function typeWriter(id, text, speed = 50) {
+            let i = 0;
+            const el = document.getElementById(id);
+            el.innerHTML = "";
+            function type() {
+                if (i < text.length) {
+                    el.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        function startApp() {
+            bgm.play();
+            viz.style.opacity = "1";
+            goTo(2);
+        }
+
+        function goTo(n) {
+            document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+            document.getElementById('s' + n).classList.add('active');
+            
+            if(n === 2) typeWriter('txt2', 'Dunia terasa sedikit lebih indah hari ini, kamu tahu kenapa? Karena ini hari lahirmu...');
+            if(n === 3) typeWriter('txt3', 'Selamat bertambah usia! Aku berdoa agar senyummu tidak pernah pudar dan bahagiamu selalu meluap.');
+            if(n === 4) typeWriter('txt4', 'Terima kasih sudah menjadi inspirasi. Mari buat tahun ini menjadi tahun terbaikmu!');
+        }
+
+        function celebrate() {
+            // Langsung menjalankan hujan simbol tanpa alert
+            mainCard.classList.add('celebrating');
+            for(let i=0; i<150; i++){ // Jumlah ditingkatkan agar lebih ramai
+                setTimeout(createHeart, i * 40);
+            }
+            
+            // Mengubah teks tombol agar lebih manis setelah diklik
+            const btn = document.querySelector('#s4 .btn');
+            btn.innerHTML = "Always Happy! 💖";
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
+            btn.style.cursor = "default";
+        }
+
+        function createHeart() {
+            const h = document.createElement('div');
+            h.innerHTML = ['💖','🌸','✨','🎀','🎈','🍭','🌈'][Math.floor(Math.random()*7)];
+            h.style.position = 'fixed';
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.top = '100vh';
+            h.style.fontSize = Math.random() * 20 + 20 + 'px';
+            h.style.zIndex = '1000';
+            h.style.transition = '4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            document.body.appendChild(h);
+
+            setTimeout(() => {
+                h.style.transform = `translateY(-120vh) rotate(${Math.random()*720}deg)`;
+                h.style.opacity = '0';
+            }, 100);
+            setTimeout(() => h.remove(), 5000);
+        }
+    </script>
+</body>
+</html>
